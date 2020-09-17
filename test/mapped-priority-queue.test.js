@@ -1,8 +1,18 @@
-const { MappedPriorityQueue } = require("../src/index");
-const { checkInstance } = require("../utils");
+const { MappedPriorityQueue } = require("../src");
 
 describe("MappedPriorityQueue", () => {
-  checkInstance(MappedPriorityQueue, "MappedPriorityQueue");
+  describe("constructor", () => {
+    it("should be an instance of MappedPriorityQueue", () => {
+      const queue = new MappedPriorityQueue();
+      expect(queue).toBeInstanceOf(MappedPriorityQueue);
+    });
+    it("should create MappedPriorityQueue with empty initial values", () => {
+      const queue = new MappedPriorityQueue();
+      expect(queue.head).toBeNull();
+      expect(queue.tail).toBeNull();
+      expect(queue.length).toEqual(0);
+    });
+  });
   describe("add", () => {
     let mappedPriorityQueue;
     let length;
