@@ -3,15 +3,15 @@ const { PriorityQueue } = require("../src");
 describe("Test for PriorityQueue class", () => {
   describe("constructor()", () => {
     it("should be an instance of PriorityQueue", () => {
-      const queue = new PriorityQueue();
-      expect(queue).toBeInstanceOf(PriorityQueue);
+      const priorityQueue = new PriorityQueue();
+      expect(priorityQueue).toBeInstanceOf(PriorityQueue);
     });
 
     it("should create PriorityQueue with empty initial values", () => {
-      const queue = new Queue();
-      expect(queue.head).toBeNull();
-      expect(queue.tail).toBeNull();
-      expect(queue.length).toEqual(0);
+      const priorityQueue = new PriorityQueue();
+      expect(priorityQueue.head).toBeNull();
+      expect(priorityQueue.tail).toBeNull();
+      expect(priorityQueue.length).toEqual(0);
     });
   });
 
@@ -26,7 +26,7 @@ describe("Test for PriorityQueue class", () => {
       testDataArray = [1, "42", { a: 2 }, [1, 2, 3, 4], { a: { b: 2 } }];
     });
 
-    it("should add item to priorityQueue", () => {
+    it("should add item to priority queue", () => {
       testDataArray.forEach((data) => {
         priorityQueue.add(0, data);
         expect(priorityQueue).toHaveLength(++length);
@@ -45,7 +45,7 @@ describe("Test for PriorityQueue class", () => {
         priorityQueue.add(index, data);
       });
       priorityQueue.add(testDataArray.length, testDataArray);
-      expect(priorityQueue.head).toEqual(testDataArray);
+      expect(priorityQueue.head.data).toEqual(testDataArray);
     });
 
     it("should add items as tail to priority queue if priority is less than min priority in queue", () => {
@@ -76,7 +76,7 @@ describe("Test for PriorityQueue class", () => {
         { data: [1, 2, 3, 4], priority: 1 },
         { data: { a: { b: 2 } }, priority: 0 }
       ];
-      maxPriorityItem = testDataArray[0];
+      maxPriorityItem = testDataArray[0].data;
       testDataArray.forEach(({ data, priority }) => {
         priorityQueue.add(priority, data);
       });
@@ -133,7 +133,7 @@ describe("Test for PriorityQueue class", () => {
         priorityQueue.add(priority, data);
       });
       length = testDataArray.length;
-      minPriorityItem = testDataArray[length - 1]
+      minPriorityItem = testDataArray[length - 1].data
     });
 
     it("should remove element", () => {
@@ -167,7 +167,7 @@ describe("Test for PriorityQueue class", () => {
     });
   });
 
-  describe("push", () => {
+  describe("method push(item, priority)", () => {
     let priorityQueue;
     let length;
     let testData;
@@ -175,7 +175,7 @@ describe("Test for PriorityQueue class", () => {
 
     beforeEach(() => {
       priorityQueue = new PriorityQueue();
-      length = priorityQueue.length;
+      length = 0;
       testData = { data: { a: 2 }, priority: 10 };
       testDataArray = [
         { data: 1, priority: 4 },
@@ -186,40 +186,37 @@ describe("Test for PriorityQueue class", () => {
       ];
     });
 
-    it("should add item to queue", () => {
+    it("should add item to priority queue", () => {
       priorityQueue.push(testData.data, testData.priority);
       expect(priorityQueue).toHaveLength(++length);
+      expect(priorityQueue.head.data).toEqual(testData.data);
     });
 
-    it("should push item by priority to queue", () => {
+    it("should push item by priority to priority queue", () => {
       testDataArray.forEach(({ data, priority }) => {
         priorityQueue.push(data, priority);
         ++length;
       });
       priorityQueue.push(testData, testData.priority);
-      expect(priorityQueue).toHaveLength(++length);
       expect(priorityQueue.getMax()).toEqual(testData);
-      expect(priorityQueue).toHaveLength(--length);
       priorityQueue.push(testData, -testData.priority);
-      expect(priorityQueue).toHaveLength(++length);
       expect(priorityQueue.getMin()).toEqual(testData);
-      expect(priorityQueue).toHaveLength(--length);
     });
 
-    it("should return new length of queue", () => {
+    it("should return new length of priority queue", () => {
       testDataArray.forEach(({ data, priority }) => {
         expect(priorityQueue.push(data, priority)).toEqual(++length);
       });
     });
 
-    it("should add item to to last position of queue for same priority", () => {
-      priorityQueue.push(1, 1);
-      priorityQueue.push(testData, 1);
+    it("should add item to to last position of priority queue for same priority", () => {
+      priorityQueue.push(-5, 1);
+      priorityQueue.push(-5, testData);
       expect(priorityQueue.getMin()).toEqual(1);
     });
   });
 
-  describe("unshift", () => {
+  describe("method unshift(data, priority)", () => {
     let priorityQueue;
     let length;
     let testData;
@@ -238,38 +235,36 @@ describe("Test for PriorityQueue class", () => {
       ];
     });
 
-    it("should add item to queue", () => {
+    it("should add item to priority queue", () => {
+      priorityQueue.unshift(testData, testData.priority);
+      expect(priorityQueue).toHaveLength(++length);
+      expect(priorityQueue.head.data).toEqual(testData);
+    });
+
+    it("should add item to priority queue with difference priority", () => {
       testDataArray.forEach(({ data, priority }) => {
         priorityQueue.unshift(data, priority);
         expect(priorityQueue).toHaveLength(++length);
       });
     });
 
-    it("should push item by priority to queue", () => {
-      testDataArray.forEach(({ data, priority }) => {
-        priorityQueue.unshift(data, priority);
-        ++length;
-      });
+    it("should add item with correct priority to queue", () => {
       priorityQueue.unshift(testData, testData.priority);
-      expect(priorityQueue).toHaveLength(++length);
-      expect(priorityQueue.getMax()).toEqual(testData);
-      expect(priorityQueue).toHaveLength(--length);
       priorityQueue.unshift(testData, -testData.priority);
-      expect(priorityQueue).toHaveLength(++length);
+      expect(priorityQueue.getMax()).toEqual(testData);
       expect(priorityQueue.getMin()).toEqual(testData);
-      expect(priorityQueue).toHaveLength(--length);
     });
 
-    it("should return new length of queue", () => {
+    it("should return new length of priority queue", () => {
       testDataArray.forEach(({ data, priority }) => {
         expect(priorityQueue.unshift(data, priority)).toEqual(++length);
       });
     });
 
-    it("should add item to to last position of queue for same priority", () => {
-      priorityQueue.unshift(1, 1);
-      priorityQueue.unshift(testData, 1);
-      expect(priorityQueue.getMin()).toEqual(1);
+    it("should add item to last position of priority queue for same priority", () => {
+      priorityQueue.unshift(1, 100);
+      priorityQueue.unshift(testData, 100);
+      expect(priorityQueue.getMin()).toEqual(testData);
     });
   });
 });

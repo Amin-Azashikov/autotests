@@ -1,27 +1,28 @@
 const { MappedPriorityQueue } = require("../src");
 
 describe("MappedPriorityQueue", () => {
-  describe("constructor", () => {
+  describe("constructor()", () => {
     it("should be an instance of MappedPriorityQueue", () => {
-      const queue = new MappedPriorityQueue();
-      expect(queue).toBeInstanceOf(MappedPriorityQueue);
+      const mappedPriorityQueue = new MappedPriorityQueue();
+      expect(mappedPriorityQueue).toBeInstanceOf(MappedPriorityQueue);
     });
+
     it("should create MappedPriorityQueue with empty initial values", () => {
-      const queue = new MappedPriorityQueue();
-      expect(queue.head).toBeNull();
-      expect(queue.tail).toBeNull();
-      expect(queue.length).toEqual(0);
+      const mappedPriorityQueue = new MappedPriorityQueue();
+      expect(mappedPriorityQueue.head).toBeNull();
+      expect(mappedPriorityQueue.tail).toBeNull();
+      expect(mappedPriorityQueue.length).toEqual(0);
     });
   });
-  describe("add", () => {
+
+  describe("method add(priority, data)", () => {
     let mappedPriorityQueue;
     let length;
-    let testData;
     let testDataArray;
+
     beforeEach(() => {
       mappedPriorityQueue = new MappedPriorityQueue();
-      length = mappedPriorityQueue.length;
-      testData = { a: 1, id: 1 };
+      length = 0;
       testDataArray = [
         { data: 1, id: "asdqw" },
         { data: [1, 2, 3, 4], id: "234" },
@@ -30,34 +31,37 @@ describe("MappedPriorityQueue", () => {
         { data: { a: { b: 2 } }, id: "qw" }
       ];
     });
-    it("should return new length", () => {
-      expect(mappedPriorityQueue.add(1, testData)).toEqual(++length);
+
+    it("should add item to mapped priority queue", () => {
+      mappedPriorityQueue.add(1, testDataArray);
+      expect(mappedPriorityQueue).toHaveLength(++length);
+      expect(mappedPriorityQueue.head.data).toEqual(testDataArray);
     });
-    it("should add item to queue", () => {
-      testDataArray.forEach(data => {
-        mappedPriorityQueue.add(1, data);
-        expect(mappedPriorityQueue).toHaveLength(++length);
-      });
+
+    it("shouldn't be able to add items with same id", () => {
+      mappedPriorityQueue.add(1, { testDataArray, id: "1" })
+      expoect(mappedPriorityQueue.add(1, { testDataArray, id: "1" })).toThrow("Item with same id already added to queue");
     });
-    it("should add item to queue by priority", () => {
+
+    it("should add item to mapped priority queue with correct priority", () => {
       testDataArray.forEach((data, i) => {
         mappedPriorityQueue.add(i, data);
-        length++;
       });
-      expect(mappedPriorityQueue).toHaveLength(length);
       expect(mappedPriorityQueue.getMin()).toEqual(testDataArray[0]);
       expect(mappedPriorityQueue.getMax()).toEqual(testDataArray[length - 1]);
     });
+
+    it("should return new length", () => {
+      expect(mappedPriorityQueue.add(1, testDataArray)).toEqual(++length);
+    });
   });
-  describe("pop", () => {
+
+  describe("method has(id)", () => {
     let mappedPriorityQueue;
-    let length;
-    let testData;
     let testDataArray;
+
     beforeEach(() => {
       mappedPriorityQueue = new MappedPriorityQueue();
-      length = mappedPriorityQueue.length;
-      testData = { a: 1, id: 1 };
       testDataArray = [
         { data: 1, id: "asdqw" },
         { data: [1, 2, 3, 4], id: "234" },
@@ -67,29 +71,27 @@ describe("MappedPriorityQueue", () => {
       ];
       testDataArray.forEach(data => {
         mappedPriorityQueue.add(1, data);
-        ++length;
       });
     });
-    it("should return first added item for same priority", () => {
+
+    it("should return true if id exist in queue", () => {
       testDataArray.forEach(data => {
-        expect(mappedPriorityQueue.pop()).toEqual(data);
-        expect(mappedPriorityQueue).toHaveLength(--length);
+        expect(mappedPriorityQueue.has(data.id)).toBeTruthy();
       });
     });
-    it("should return item with higher priority", () => {
-      mappedPriorityQueue.add(2, testData);
-      expect(mappedPriorityQueue.pop()).toEqual(testData);
+
+    it("should return false if id not exist in queue", () => {
+      expect(mappedPriorityQueue.has("some invalid id")).toBeFalsy();
     });
   });
-  describe("shift", () => {
+
+  describe("method pop()", () => {
     let mappedPriorityQueue;
-    let length;
-    let testData;
     let testDataArray;
+
     beforeEach(() => {
       mappedPriorityQueue = new MappedPriorityQueue();
       length = mappedPriorityQueue.length;
-      testData = { a: 1, id: 1 };
       testDataArray = [
         { data: 1, id: "asdqw" },
         { data: [1, 2, 3, 4], id: "234" },
@@ -97,26 +99,75 @@ describe("MappedPriorityQueue", () => {
         { data: "42", id: "ds" },
         { data: { a: { b: 2 } }, id: "qw" }
       ];
-      testDataArray.forEach(data => {
-        mappedPriorityQueue.add(1, data);
-        ++length;
+      testDataArray.forEach((data, i) => {
+        mappedPriorityQueue.add(i, data);
       });
     });
-    it("should return last added item for same priority", () => {
+
+    it("should remove item from queue", () => {
       testDataArray.forEach(() => {
-        expect(mappedPriorityQueue.shift()).toEqual(testDataArray[--length]);
-        expect(mappedPriorityQueue).toHaveLength(length);
+        mappedPriorityQueue.pop();
+      });
+      expect(mappedPriorityQueue).toHaveLength(0);
+    });
+
+    it("should remove and return first added item with highest priority", () => {
+      mappedPriorityQueue.add(10, -10);
+      mappedPriorityQueue.add(10, { data: -10 });
+      expect(mappedPriorityQueue.pop()).toEqual(10);
+    });
+
+    it("should remove id after removing item", () => {
+      const testData = { testDataArray, id: 'some unique id' };
+      mappedPriorityQueue.add(0, testData);
+      expect(mappedPriorityQueue.has(testData.id)).toBeFalsy();
+    });
+  });
+
+  describe("method shift()", () => {
+    let mappedPriorityQueue;
+    let testData;
+    let testDataArray;
+
+    beforeEach(() => {
+      mappedPriorityQueue = new MappedPriorityQueue();
+      testData = { a: 1, id: 1 };
+      testDataArray = [
+        { data: 1, id: "asdqw" },
+        { data: [1, 2, 3, 4], id: "234" },
+        { data: { a: 2 }, id: 123 },
+        { data: "42", id: "ds" },
+        { data: { a: { b: 2 } }, id: "qw" }
+      ];
+      testDataArray.forEach((data, i) => {
+        mappedPriorityQueue.add(i, data);
       });
     });
-    it("should return item with lower priority", () => {
-      mappedPriorityQueue.add(0, testData);
+
+    it("should remove item from queue", () => {
+      testDataArray.forEach(() => {
+        mappedPriorityQueue.shift();
+      });
+      expect(mappedPriorityQueue).toHaveLength(0);
+    });
+
+    it("should remove and return item with lower priority", () => {
+      mappedPriorityQueue.add(-10, testData);
       expect(mappedPriorityQueue.shift()).toEqual(testData);
     });
+
+    it("should remove and return last added item for same priority", () => {
+      mappedPriorityQueue.add(10, { testDataArray, id: 1 });
+      mappedPriorityQueue.add(10, 10);
+      expect(mappedPriorityQueue.shift()).toEqual(10);
+    });
   });
-  describe("getById", () => {
+
+  describe("method getById(id)", () => {
     let mappedPriorityQueue;
     let testData;
     let testDataArray;
+
     beforeEach(() => {
       mappedPriorityQueue = new MappedPriorityQueue();
       testData = { a: 1, id: 1 };
@@ -129,28 +180,24 @@ describe("MappedPriorityQueue", () => {
       ];
       testDataArray.forEach(data => {
         mappedPriorityQueue.add(1, data);
-        ++length;
       });
     });
-    it("should return item with correct id", () => {
+
+    it("should return correct item with id", () => {
       testDataArray.forEach(data => {
         expect(mappedPriorityQueue.getById(data.id)).toEqual(data);
       });
     });
-    it("shouldn't have item with same id", () => {
-      while (mappedPriorityQueue.length) {
-        mappedPriorityQueue.pop();
-      }
-      mappedPriorityQueue.add(1, testData);
-      mappedPriorityQueue.add(1, testData);
-      expect(mappedPriorityQueue.getById(testData.id)).toEqual(testData);
-      expect(mappedPriorityQueue.removeById(testData.id)).toEqual(testData);
+
+    it("should return undefined if item with given id doesn't exist in queue", () => {
       expect(mappedPriorityQueue.getById(testData.id)).toEqual(undefined);
     });
   });
-  describe("removeById", () => {
+
+  describe("method removeById(id)", () => {
     let mappedPriorityQueue;
     let testDataArray;
+
     beforeEach(() => {
       mappedPriorityQueue = new MappedPriorityQueue();
       testDataArray = [
@@ -160,11 +207,18 @@ describe("MappedPriorityQueue", () => {
         { data: "42", id: "ds" },
         { data: { a: { b: 2 } }, id: "qw" }
       ];
-      testDataArray.forEach(data => {
-        mappedPriorityQueue.add(1, data);
-        ++length;
+      testDataArray.forEach((data, i) => {
+        mappedPriorityQueue.add(i, data);
       });
     });
+
+    it("should remove item from queue", () => {
+      testDataArray.forEach(data => {
+        mappedPriorityQueue.removeById(data.id);
+      });
+      expect(mappedPriorityQueue).toHaveLength(0);
+    });
+
     it("should remove item with correct id", () => {
       testDataArray.forEach(data => {
         expect(mappedPriorityQueue.getById(data.id)).toEqual(data);
@@ -172,29 +226,18 @@ describe("MappedPriorityQueue", () => {
         expect(mappedPriorityQueue.getById(data.id)).toEqual(undefined);
       });
     });
-  });
-  describe("has", () => {
-    let mappedPriorityQueue;
-    let testDataArray;
-    beforeEach(() => {
-      mappedPriorityQueue = new MappedPriorityQueue();
-      testDataArray = [
-        { data: 1, id: "asdqw" },
-        { data: [1, 2, 3, 4], id: "234" },
-        { data: { a: 2 }, id: 123 },
-        { data: "42", id: "ds" },
-        { data: { a: { b: 2 } }, id: "qw" }
-      ];
-      testDataArray.forEach(data => {
-        mappedPriorityQueue.add(1, data);
-        ++length;
-      });
+
+    it("should return true if item was removed from", () => {
+      const testId = "some id";
+      mappedPriorityQueue.add(0, {testDataArray, id: testId});
+      expect(mappedPriorityQueue.removeById(testId)).toBeTruthy();
     });
-    it("should return true if id exist in queue", () => {
-      testDataArray.forEach(data => {
-        expect(mappedPriorityQueue.getById(data.id)).toEqual(data);
-        expect(mappedPriorityQueue.has(data.id)).toBeTruthy();
-      });
+
+    it("should return false if item wasn't in queue", () => {
+      const testId = "some id";
+      const testInvalidId = "some invalid id";
+      mappedPriorityQueue.add(0, {testDataArray, id: testId});
+      expect(mappedPriorityQueue.removeById(testInvalidId)).toBeFalsy();
     });
   });
 });
